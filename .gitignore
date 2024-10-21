@@ -1,0 +1,21 @@
+# Binaries for programs and plugins, swap files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.swp
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Not store vendored files
+vendor
+
+# this is supposed to be local-only
+go.work
+.tmp/
+*.db
