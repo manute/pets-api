@@ -15,7 +15,7 @@ type Storage struct {
 
 type Repository interface {
 	Upsert(p *domain.Pet) error
-	Get(n string) (*domain.Pet, error)
+	Get(id int) (*domain.Pet, error)
 }
 
 func NewStorage() (*Storage, error) {
@@ -26,9 +26,21 @@ func NewStorage() (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (s *Storage) Upsert(p *domain.Pet) error {
+func (s *Storage) Insert(p *domain.Pet) error {
 	txn := s.db.Txn(true)
 
+	last, err := txn.Last("pet", "id")
+	if err != nil {
+		txn.Abort()
+		return err
+	}
+
+	id := 0
+	if last != nil {
+		id = last.(*domain.Pet).Id
+	}
+
+	p.Id = id + 1
 	if err := txn.Insert("pet", p); err != nil {
 		txn.Abort()
 		return err
@@ -38,7 +50,7 @@ func (s *Storage) Upsert(p *domain.Pet) error {
 	return nil
 }
 
-func (s *Storage) Get(id string) (*domain.Pet, error) {
+func (s *Storage) Get(id int) (*domain.Pet, error) {
 	txn := s.db.Txn(false) // read-only transactipm
 
 	raw, err := txn.First("pet", "id", id)
@@ -85,7 +97,7 @@ func schema() *memdb.DBSchema {
 					"id": {
 						Name:    "id",
 						Unique:  true,
-						Indexer: &memdb.StringFieldIndex{Field: "Name"},
+						Indexer: &memdb.IntFieldIndex{Field: "Id"},
 					},
 				},
 			},

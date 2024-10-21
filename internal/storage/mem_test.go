@@ -15,15 +15,16 @@ func Test_Upsert(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	id := "tango"
+	id := 1
 	p := domain.Pet{
-		Name:     id,
-		Kind:     "labrador",
-		Gender:   "male",
-		BirthDay: "25/03/2012",
+		// Id:          id,
+		Name:        "tango",
+		Kind:        "labrador",
+		Gender:      "male",
+		DateOfBirth: "25/03/2012",
 	}
 
-	if err := db.Upsert(&p); err != nil {
+	if err := db.Insert(&p); err != nil {
 		t.Error(err)
 	}
 
@@ -33,7 +34,7 @@ func Test_Upsert(t *testing.T) {
 	}
 
 	if !cmp.Equal(&p, pet) {
-		t.Errorf("not equal entities")
+		t.Errorf("got bad entity")
 	}
 }
 
@@ -44,15 +45,15 @@ func Test_List(t *testing.T) {
 	}
 
 	for i := 0; i < 5; i++ {
-		id := fmt.Sprintf("tango_%d", i)
 		p := domain.Pet{
-			Name:     id,
-			Kind:     "labrador",
-			Gender:   "male",
-			BirthDay: "25/03/2012",
+			Id:          i,
+			Name:        fmt.Sprintf("tango_%d", i),
+			Kind:        "labrador",
+			Gender:      "male",
+			DateOfBirth: "25/03/2012",
 		}
 
-		if err := db.Upsert(&p); err != nil {
+		if err := db.Insert(&p); err != nil {
 			t.Error(err)
 		}
 	}
@@ -63,7 +64,7 @@ func Test_List(t *testing.T) {
 	}
 
 	if len(pets) != 5 {
-		t.Errorf("not list entities retrieved, size 5 != %d", len(pets))
+		t.Errorf("wrong list entities retrieved, size 5 != %d", len(pets))
 	}
 
 }

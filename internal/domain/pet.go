@@ -5,17 +5,16 @@ import (
 	"time"
 )
 
- 
 type Pet struct {
-	Name     string `json:"name"`
-	Kind      string `json:"kind"`
-	Gender   string `json:"gender"`
-	BirthDay string `json:"dateOfBirth"`
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Kind        string `json:"kind"`
+	Gender      string `json:"gender"`
+	DateOfBirth string `json:"dateOfBirth"`
 }
 
-
 func (p *Pet) IsValidDate() error {
-	d, err := time.Parse(time.DateOnly, p.BirthDay)
+	d, err := time.Parse(time.DateOnly, p.DateOfBirth)
 	if err != nil {
 		return err
 	}
@@ -25,4 +24,3 @@ func (p *Pet) IsValidDate() error {
 	}
 	return nil
 }
-
