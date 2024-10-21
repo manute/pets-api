@@ -18,4 +18,3 @@ vendor
 # this is supposed to be local-only
 go.work
 .tmp/
-*.db
