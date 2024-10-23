@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"flag"
+	"iskaypet-challenge/internal/server"
+	"iskaypet-challenge/internal/storage"
 	"log"
 	"net/http"
 	"os"
@@ -17,8 +19,19 @@ func main() {
 	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.Parse()
 
+	repo, err := storage.NewStorage()
+	if err != nil {
+		log.Fatalf("fail to init database: %v", err)
+	}
+
+	petsrh := server.NewPetReaderHandler(repo)
+	petswh := server.NewPetWriterHandler(repo)
 	r := mux.NewRouter()
+
 	// Add your routes as needed
+	r.HandleFunc("/pets", petsrh.List).Methods("GET")
+	r.HandleFunc("/pets/{id}", petsrh.Get).Methods("GET")
+	r.HandleFunc("/pets", petswh.Create).Methods("POST")
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",

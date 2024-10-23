@@ -13,11 +13,6 @@ type Storage struct {
 	db *memdb.MemDB
 }
 
-type Repository interface {
-	Upsert(p *domain.Pet) error
-	Get(id int) (*domain.Pet, error)
-}
-
 func NewStorage() (*Storage, error) {
 	db, err := memdb.NewMemDB(schema())
 	if err != nil {
