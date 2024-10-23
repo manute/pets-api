@@ -54,6 +54,11 @@ func (s *Storage) Get(id int) (*domain.Pet, error) {
 		return nil, err
 	}
 
+	if raw == nil {
+		txn.Abort()
+		return nil, fmt.Errorf("no content")
+	}
+
 	pet, ok := raw.(*domain.Pet)
 	if !ok {
 		txn.Abort()

@@ -3,8 +3,10 @@ package server
 import (
 	"encoding/json"
 	"iskaypet-challenge/internal/domain"
-	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type ReadRepository interface {
@@ -33,8 +35,6 @@ func NewPetWriterHandler(repo WriteRepository) *PetWHandler {
 }
 
 func (h *PetRHandler) List(w http.ResponseWriter, r *http.Request) {
-	log.Println("GET List")
-
 	pets, err := h.storage.List()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,10 +46,19 @@ func (h *PetRHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PetRHandler) Get(w http.ResponseWriter, r *http.Request) {
-	log.Println("GET get")
-
-	pet, err := h.storage.Get(1)
+	i := mux.Vars(r)["id"]
+	id, err := strconv.Atoi(i)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	pet, err := h.storage.Get(id)
+	if err != nil {
+		if err.Error() == "no content" {
+			http.Error(w, err.Error(), http.StatusNoContent)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -59,7 +68,6 @@ func (h *PetRHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PetWHandler) Create(w http.ResponseWriter, r *http.Request) {
-	log.Println("POST Create")
 	var pet domain.Pet
 	if err := json.NewDecoder(r.Body).Decode(&pet); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -67,7 +75,7 @@ func (h *PetWHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := pet.IsValidDate(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
